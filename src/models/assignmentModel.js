@@ -9,10 +9,10 @@ const assignmentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  files: {
-    type: String,
-    required: true
-  },
+  // files: {
+  //   type: String,
+  //   required: true
+  // },
   student_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',

@@ -7,7 +7,7 @@ const assignment = async function(req, res) {
   try {
     const { title, description } = req.body;
     const { studentId } = req.params;
-    const files = req.files
+    //const files = req.files
 
     const student = await StudentModel.findById(studentId);
     if (!student) {
@@ -24,17 +24,17 @@ const assignment = async function(req, res) {
   }
     
 
-    if (!files || files.length == 0) {
-      return res.status(400).send({ msg: "No file found" });
-    }
+    // if (!files || files.length == 0) {
+    //   return res.status(400).send({ msg: "No file found" });
+    // }
 
-    const uploadedFile = await aws.uploadFile(files[0]);
+    //const uploadedFile = await aws.uploadFile(files[0]);
     const assignment = new AssignmentModel({
       title,
       description,
-      files: JSON.stringify(files), // Convert files array to a string
+      //files: JSON.stringify(files), // Convert files array to a string
       student_id: studentId,
-      files: uploadedFile
+      //files: uploadedFile
     });
 
     const savedAssignment = await assignment.save();
@@ -46,4 +46,39 @@ const assignment = async function(req, res) {
   }
 };
 
-module.exports = { assignment };
+const getassignment = async function(req, res) {
+  try {
+    const assignment = await AssignmentModel.aggregate([
+      {
+        $lookup: {
+          from: "students",
+          localField: "student_id",
+          foreignField: "_id",
+          as: "Student"
+        }
+      },
+      // {
+      //   $unwind: {
+      //     path: "$Student",
+      //   }
+      // }
+    ]);
+    res.status(200).send({ assignment });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ error: "Server error!" });
+  }
+}
+
+
+const deleteassignment = async function(req,res){
+  try{
+  await AssignmentModel.deleteMany({})
+  return res.status(200).send({msg:"deleted"})
+  }catch(error){
+    console.log(error);
+    return res.status(500).send({error:"server error"})
+  }
+}
+
+module.exports = { assignment, getassignment, deleteassignment };
